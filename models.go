@@ -8,7 +8,7 @@ type Voter struct {
 	HasVoted  bool
 }
 
-type Canditate struct{
+type Candidate struct{
 	ID int
 	Name string
 	Party string
