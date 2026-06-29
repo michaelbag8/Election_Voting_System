@@ -7,3 +7,9 @@ type Voter struct {
 	VoterID   string
 	HasVoted  bool
 }
+
+type Canditate struct{
+	ID int
+	Name string
+	Party string
+}
