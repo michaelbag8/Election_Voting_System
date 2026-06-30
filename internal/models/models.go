@@ -1,4 +1,4 @@
-package main
+package models
 
 type Voter struct {
 	ID       int    `json:"id"`

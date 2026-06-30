@@ -6,11 +6,15 @@ import (
 	"log"
 	"net/http"
 	"strings"
+    //"election-voting-system/internal/handlers"
+    "election-voting-system/internal/models"
+    //"election-voting-system/internal/routes"
+    //"election-voting-system/internal/services"
 )
 
 type Election struct {
-	Voters     []Voter     `json:"voters"`
-	Candidates []Candidate `json:"candidates"`
+	Voters     []models.Voter     `json:"voters"`
+	Candidates []models.Candidate `json:"candidates"`
 }
 type CreateVoterRequest struct {
 	Name    string `json:"name"`
@@ -41,7 +45,7 @@ func getCandidates(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func createCandidates(w http.ResponseWriter, r *http.Request){
+func createCandidate(w http.ResponseWriter, r *http.Request){
     http.Error(w, "Not implemented", http.StatusNotImplemented)
 }
 
@@ -64,7 +68,7 @@ func createVoters(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	voter := Voter{
+	voter := models.Voter{
 		ID:       len(election.Voters) + 1,
 		Name:     req.Name,
 		VoterID:  req.VoterID,
@@ -106,21 +110,21 @@ func candidatesHandler(w http.ResponseWriter, r *http.Request){
     case http.MethodGet:
         getCandidates(w,r)
     case http.MethodPost:
-        createCandidates(w,r)
+        createCandidate(w,r)
     default:
         http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
     }
 }
 func main() {
 	election.Voters = append(election.Voters,
-		Voter{ID: 1, Name: "Michael", VoterID: "V001", HasVoted: false},
-		Voter{ID: 2, Name: "Sarah", VoterID: "V002", HasVoted: false},
+		models.Voter{ID: 1, Name: "Michael", VoterID: "V001", HasVoted: false},
+		models.Voter{ID: 2, Name: "Sarah", VoterID: "V002", HasVoted: false},
 	)
 
 	election.Candidates = append(election.Candidates,
-		Candidate{ID: 1, Name: "James", Party: "PDP"},
-		Candidate{ID: 2, Name: "Joel", Party: "APC"},
-		Candidate{ID: 3, Name: "Osyter", Party: "PNP"},
+		models.Candidate{ID: 1, Name: "James", Party: "PDP"},
+		models.Candidate{ID: 2, Name: "Joel", Party: "APC"},
+		models.Candidate{ID: 3, Name: "Osyter", Party: "PNP"},
 	)
 
 	http.HandleFunc("/", homeHandler)
