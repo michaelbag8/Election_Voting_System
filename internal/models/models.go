@@ -12,3 +12,8 @@ type Candidate struct {
 	Name  string `json:"name"`
 	Party string `json:"party"`
 }
+
+type Election struct {
+	Voters     []Voter     `json:"voters"`
+	Candidates []Candidate `json:"candidates"`
+}

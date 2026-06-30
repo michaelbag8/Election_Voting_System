@@ -4,23 +4,22 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strings"
-    //"election-voting-system/internal/handlers"
+   // "election-voting-system/internal/handlers"
     "election-voting-system/internal/models"
-    //"election-voting-system/internal/routes"
-    //"election-voting-system/internal/services"
+   // "election-voting-system/internal/routes"
+    "election-voting-system/internal/services"
 )
 
-type Election struct {
-	Voters     []models.Voter     `json:"voters"`
-	Candidates []models.Candidate `json:"candidates"`
-}
+
 type CreateVoterRequest struct {
 	Name    string `json:"name"`
 	VoterID string `json:"voterId"`
 }
+var Elections = models.Election{}
 
-var Elections = Election{}
+var voterService = services.NewVoterService(&Elections)
+
+//var Elections = Election{}
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Election Voting System API is running")
@@ -49,11 +48,7 @@ func createCandidate(w http.ResponseWriter, r *http.Request){
 }
 
 func createVoters(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
+	
 	var req CreateVoterRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -61,27 +56,11 @@ func createVoters(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//checking for empty input
-	if strings.TrimSpace(req.Name) == "" || strings.TrimSpace(req.VoterID) == "" {
-		http.Error(w, "name and id cannot be empty", http.StatusBadRequest)
+	voter, err := voterService.CreateVoter(req.Name, req.VoterID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
-	voter := models.Voter{
-		ID:       len(Elections.Voters) + 1,
-		Name:     req.Name,
-		VoterID:  req.VoterID,
-		HasVoted: false,
-	}
-	//checking for duplicate
-	for _, existingvoter := range Elections.Voters {
-		if existingvoter.VoterID == req.VoterID {
-			http.Error(w, "Voter ID already exists", http.StatusConflict)
-			return
-		}
-	}
-	//adding voter of non duplicate ID
-	Elections.Voters = append(Elections.Voters, voter)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
