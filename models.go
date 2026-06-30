@@ -1,15 +1,14 @@
 package main
 
-
 type Voter struct {
-	ID        int
-	Name      string
-	VoterID   string
-	HasVoted  bool
+	ID       int    `json:"id"`
+	Name     string `json:"name"`
+	VoterID  string `json:"voterId"`
+	HasVoted bool   `json:"hasVoted"`
 }
 
-type Candidate struct{
-	ID int
-	Name string
-	Party string
+type Candidate struct {
+	ID    int    `json:"id"`
+	Name  string `json:"name"`
+	Party string `json:"party"`
 }
