@@ -23,7 +23,7 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Election Voting System API is running")
 }
 
-func votersHandler(w http.ResponseWriter, r *http.Request) {
+func getVoters(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	err := json.NewEncoder(w).Encode(election.Voters)
 	if err != nil {
@@ -32,7 +32,7 @@ func votersHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func candidatesHandler(w http.ResponseWriter, r *http.Request) {
+func getCandidates(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	err := json.NewEncoder(w).Encode(election.Candidates)
 	if err != nil {
@@ -41,7 +41,11 @@ func candidatesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func createVoterHandler(w http.ResponseWriter, r *http.Request) {
+func createCandidates(w http.ResponseWriter, r *http.Request){
+    http.Error(w, "Not implemented", http.StatusNotImplemented)
+}
+
+func createVoters(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -67,8 +71,8 @@ func createVoterHandler(w http.ResponseWriter, r *http.Request) {
 		HasVoted: false,
 	}
 	//checking for duplicate
-	for _, voter := range election.Voters {
-		if voter.VoterID == req.VoterID {
+	for _, existingvoter := range election.Voters {
+		if existingvoter.VoterID == req.VoterID {
 			http.Error(w, "Voter ID already exists", http.StatusConflict)
 			return
 		}
@@ -84,6 +88,29 @@ func createVoterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+//request dispatching
+func votersHandler(w http.ResponseWriter, r *http.Request){
+    switch r.Method{
+    case http.MethodGet:
+        getVoters(w,r)
+    case http.MethodPost:
+        createVoters(w,r)
+    default:
+        http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+    }
+}
+
+func candidatesHandler(w http.ResponseWriter, r *http.Request){
+    switch r.Method{
+    case http.MethodGet:
+        getCandidates(w,r)
+    case http.MethodPost:
+        createCandidates(w,r)
+    default:
+        http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+    }
+}
 func main() {
 	election.Voters = append(election.Voters,
 		Voter{ID: 1, Name: "Michael", VoterID: "V001", HasVoted: false},
@@ -98,8 +125,7 @@ func main() {
 
 	http.HandleFunc("/", homeHandler)
 	http.HandleFunc("/voters", votersHandler)
-	http.HandleFunc("/candidates", candidatesHandler)
-	http.HandleFunc("/voters/create", createVoterHandler)
+    http.HandleFunc("/candidates", candidatesHandler)
 
 	fmt.Println("Server running on :8080")
 	err := http.ListenAndServe(":8080", nil)
